@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Recommendations</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 700px; margin: auto;}
+        h1, h2 { color: #333; text-align: center;}
+        ul { list-style-type: none; padding: 0; }
+        li { background-color: #eee; margin-bottom: 8px; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; }
+        li .score { color: #555; font-style: italic; }
+        a { color: #5cb85c; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+        .error { color: red; text-align: center; font-weight: bold; }
+        .input-summary { text-align: center; margin-bottom: 20px; }
+        .back-link { display: block; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Recommendations</h1>
+        <div class="input-summary">
+            <p>Based on your input: <strong>{{ input_games_str }}</strong></p>
+        </div>
+
+        {% if error_message %}
+            <p class="error">{{ error_message }}</p>
+        {% elif recommendations %}
+            <h2>Top Recommendations:</h2>
+            <ul>
+            {% for name, score in recommendations %}
+                <li>{{ name }} <span class="score">(Similarity: {{ "%.4f"|format(score) }})</span></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p style="text-align:center;">No recommendations found for the provided games. They might not be in our dataset, or no similar games could be identified with the current model.</p>
+        {% endif %}
+
+        <div class="back-link">
+            <a href="{{ url_for('index') }}">Try again with different games</a>
+        </div>
+    </div>
+</body>
+</html>

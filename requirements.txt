@@ -1,0 +1,5 @@
+pandas
+torch
+torch-geometric
+tqdm
+Flask
