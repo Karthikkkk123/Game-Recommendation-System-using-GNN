@@ -1,6 +1,7 @@
 # Game Recommendation System using Graph Neural Networks
 
-*<p align="center">A placeholder for a screenshot of the application.</p>*
+*![image](https://github.com/user-attachments/assets/10420a85-8478-47c9-9162-56a832ee8dce)
+*
 
 ## Overview
 
