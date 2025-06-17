@@ -1,0 +1,6 @@
+flask==2.3.3
+flask-cors==4.0.0
+numpy==1.24.3
+torch==2.0.1
+pandas==2.0.3
+python-dotenv==1.0.0

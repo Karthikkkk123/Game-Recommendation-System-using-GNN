@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Recommender</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --background-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #2d3436;
+            --text-light: #636e72;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .select2-container {
+            width: 100% !important;
+            margin-bottom: 1.5rem;
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            min-height: 55px;
+            padding: 5px;
+            transition: var(--transition);
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            padding: 5px 15px;
+            margin: 3px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: white;
+            margin-right: 5px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1.2em;
+            line-height: 1;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .results-container {
+            margin-top: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .results-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            transform: translateY(0);
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .game-card-content {
+            padding: 1.5rem;
+        }
+
+        .game-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+            border: 4px solid rgba(108, 92, 231, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .selected-games {
+            margin: 1.5rem 0;
+            min-height: 60px;
+        }
+
+        .selected-game-tag {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .remove-game {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="animate__animated animate__fadeInDown">
+            <h1>Game Recommender</h1>
+            <p class="subtitle">Discover your next favorite game through AI-powered recommendations</p>
+        </header>
+
+        <main>
+            <div class="search-container animate__animated animate__fadeInUp">
+                <label for="game-search">Select 1-5 games you enjoy:</label>
+                <select id="game-search" class="js-example-basic-multiple" multiple="multiple" style="width: 100%">
+                    <!-- Options will be loaded dynamically -->
+                </select>
+                
+                <div class="selected-games" id="selected-games">
+                    <!-- Selected games will appear here -->
+                </div>
+                
+                <button id="get-recommendations" class="btn btn-block pulse">
+                    Get Recommendations
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Finding the perfect game recommendations for you...</p>
+            </div>
+
+            <div class="results-container" id="results-container">
+                <h2>Recommended Games</h2>
+                <div class="recommendations-grid" id="recommendations-grid">
+                    <!-- Recommendations will be inserted here -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="animate__animated animate__fadeInUp">
+            <p>© 2023 Game Recommender | Powered by GNN</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            let selectedGames = [];
+            
+            // Initialize Select2
+            $('#game-search').select2({
+                placeholder: 'Search for games...',
+                allowClear: true,
+                minimumInputLength: 2,
+                ajax: {
+                    url: '/api/search',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.map(function(item) {
+                                return { id: item, text: item };
+                            })
+                        };
+                    },
+                    cache: true
+                },
+                maximumSelectionLength: 5
+            });
+
+            // Handle game selection
+            $('#game-search').on('select2:select', function (e) {
+                const game = e.params.data.text;
+                if (!selectedGames.includes(game) && selectedGames.length < 5) {
+                    selectedGames.push(game);
+                    updateSelectedGames();
+                }
+                $(this).val(null).trigger('change');
+            });
+
+            // Update the selected games display
+            function updateSelectedGames() {
+                const container = $('#selected-games');
+                container.empty();
+                
+                selectedGames.forEach((game, index) => {
+                    const tag = $(`
+                        <span class="selected-game-tag">
+                            ${game}
+                            <span class="remove-game" data-index="${index}">×</span>
+                        </span>
+                    `);
+                    container.append(tag);
+                });
+                
+                // Enable/disable button based on selection
+                $('#get-recommendations').prop('disabled', selectedGames.length === 0);
+            }
+
+            // Handle game removal
+            $(document).on('click', '.remove-game', function() {
+                const index = $(this).data('index');
+                selectedGames.splice(index, 1);
+                updateSelectedGames();
+            });
+
+            // Get recommendations
+            $('#get-recommendations').on('click', function() {
+                if (selectedGames.length === 0) return;
+                
+                const $loading = $('#loading');
+                const $results = $('#results-container');
+                const $recommendationsGrid = $('#recommendations-grid');
+                
+                // Show loading state
+                $loading.fadeIn(300);
+                $results.removeClass('visible');
+                
+                // Make API call
+                $.ajax({
+                    url: '/api/recommend',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        games: selectedGames,
+                        num_recommendations: 10
+                    }),
+                    success: function(response) {
+                        // Hide loading
+                        $loading.fadeOut(300);
+                        
+                        // Clear previous results
+                        $recommendationsGrid.empty();
+                        
+                        // Add new recommendations
+                        if (response.recommendations && response.recommendations.length > 0) {
+                            response.recommendations.forEach((game, index) => {
+                                const card = $(`
+                                    <div class="game-card animate__animated animate__fadeInUp" style="animation-delay: ${index * 0.1}s">
+                                        <div class="game-card-content">
+                                            <h3 class="game-title">${game}</h3>
+                                        </div>
+                                    </div>
+                                `);
+                                $recommendationsGrid.append(card);
+                            });
+                        } else {
+                            $recommendationsGrid.html('<p>No recommendations found. Try selecting different games.</p>');
+                        }
+                        
+                        // Show results with animation
+                        setTimeout(() => {
+                            $results.addClass('visible');
+                            
+                            // Scroll to results
+                            $('html, body').animate({
+                                scrollTop: $results.offset().top - 50
+                            }, 500);
+                        }, 100);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        $loading.fadeOut(300);
+                        $recommendationsGrid.html('<p>Error loading recommendations. Please try again later.</p>');
+                        $results.addClass('visible');
+                    }
+                });
+            });
+            
+            // Disable button initially
+            $('#get-recommendations').prop('disabled', true);
+        });
+    </script>
+</body>
+</html>
